@@ -386,8 +386,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const TABLE = 'test_db';
 const HISTORY_TABLE = 'exam_history';
 
-async function sbFetch(path, options = {}) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+async function sbFetch(path, options = {}, retry = 1) {
+  const doRequest = () => fetch(SUPABASE_URL + '/rest/v1/' + path, {
     ...options,
     headers: {
       'apikey': SUPABASE_KEY,
@@ -397,12 +397,21 @@ async function sbFetch(path, options = {}) {
       ...(options.headers || {})
     }
   });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
+  try {
+    const res = await doRequest();
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  } catch(e) {
+    if (retry > 0) {
+      await new Promise(r => setTimeout(r, 3000));
+      return sbFetch(path, options, 0);
+    }
+    throw e;
   }
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
 }
 
 /* DB 행 → 앱 단어 객체 변환 */
