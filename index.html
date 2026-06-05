@@ -432,12 +432,13 @@ function rowToWord(r) {
 
 /* 앱 단어 객체 → DB 행 변환 */
 function wordToRow(w) {
+  const n = v => (v && v.trim()) ? v.trim() : null; // 빈 문자열 → null
   return {
     eng_word: w.en,
     kor_word1: w.k1 || '',
-    kor_word2: w.k2 || '',
-    kor_word3: w.k3 || '',
-    grade: w.level || '',
+    kor_word2: n(w.k2),
+    kor_word3: n(w.k3),
+    grade: n(w.level),
     tested: w.tested || 0,
     correct: w.correct || 0,
     created_at: w.createdAt || Date.now()
