@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어단어 암기 앱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Pretendard:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--surface2:#F0EDE6;
+  --border:#E2DDD6;--border2:#CBC5BC;
+  --text:#1A1714;--text2:#6B6560;--text3:#A09890;
+  --accent:#2D5016;--accent-light:#EBF2E3;
+  --danger:#C0392B;--danger-light:#FDECEA;
+  --success:#2D5016;--success-light:#EBF2E3;
+  --warning:#7A5200;--warning-light:#FFF8E6;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+.app{max-width:680px;margin:0 auto;padding:24px 16px 80px;min-height:100vh}
+.screen{display:none;animation:fadeUp .22s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.top-bar{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.back-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:20px;transition:all .15s;flex-shrink:0;line-height:1}
+.back-btn:hover{background:var(--surface2);border-color:var(--border2)}
+.page-title{font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:-.3px}
+
+/* MAIN */
+.brand{text-align:center;padding:36px 0 32px}
+.brand-en{font-family:'Instrument Serif',serif;font-size:13px;letter-spacing:.2em;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.brand-title{font-family:'Instrument Serif',serif;font-size:36px;letter-spacing:-.5px;line-height:1.2}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 14px;text-align:center;box-shadow:var(--shadow)}
+.stat-card .s-label{font-size:11px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.stat-card .s-value{font-family:'Instrument Serif',serif;font-size:30px;line-height:1}
+.menu-list{display:flex;flex-direction:column;gap:10px}
+.menu-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;cursor:pointer;display:flex;align-items:center;gap:16px;text-align:left;box-shadow:var(--shadow);transition:all .15s;width:100%}
+.menu-btn:hover{border-color:var(--border2);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.menu-icon{width:44px;height:44px;border-radius:10px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.menu-icon.orange{background:#FFF0E8}.menu-icon.slate{background:#EEF0F5}
+.m-title{font-weight:600;font-size:15px}.m-desc{font-size:12px;color:var(--text3);margin-top:2px}
+.menu-arrow{margin-left:auto;color:var(--text3);font-size:20px}
+
+/* WORD SCREEN */
+.section-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px;flex-wrap:wrap}
+.count-label{font-size:13px;color:var(--text3)}
+.btn-group{display:flex;gap:8px}
+.add-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:opacity .15s;font-family:'Pretendard',sans-serif}
+.add-btn:hover{opacity:.85}
+.download-btn{background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:7px 14px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .15s;white-space:nowrap}
+.download-btn:hover{background:var(--surface2)}
+.filter-bar{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.filter-btn{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;font-family:'Pretendard',sans-serif}
+.filter-btn:hover{border-color:var(--border2)}
+.filter-btn.active{background:var(--text);color:#fff;border-color:var(--text)}
+.word-list{display:flex;flex-direction:column;gap:8px}
+.word-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);transition:border-color .15s}
+.word-card:hover{border-color:var(--border2)}
+.word-top{display:flex;align-items:center;gap:10px}
+.word-num{font-size:11px;color:var(--text3);min-width:22px;font-weight:500}
+.word-en{font-family:'Instrument Serif',serif;font-size:18px;flex-shrink:0}
+.word-divider{width:1px;height:16px;background:var(--border);flex-shrink:0}
+.word-ko{font-size:14px;color:var(--text2);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.word-level{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.word-level.상{background:var(--danger-light);color:var(--danger)}
+.word-level.중{background:var(--warning-light);color:var(--warning)}
+.word-level.하{background:var(--success-light);color:var(--success)}
+.word-actions{display:flex;gap:5px;flex-shrink:0;margin-left:auto}
+.action-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .12s}
+.action-btn:hover{background:var(--surface2);border-color:var(--border2)}
+.action-btn.del:hover{background:var(--danger-light);color:var(--danger);border-color:#F5B7B1}
+.word-meta{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;gap:16px;font-size:11px;color:var(--text3)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,18,14,.4);z-index:200;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--surface);border-radius:16px;padding:28px 24px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-title{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.form-group input, .form-group select{width:100%;padding:10px 13px;font-size:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:'Pretendard',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s}
+.form-group input:focus, .form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,80,22,.1)}
+.form-group input::placeholder{color:var(--text3)}
+.modal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:22px}
+.modal-foot-right{display:flex;gap:8px}
+.btn-cancel{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 18px;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;font-family:'Pretendard',sans-serif;transition:background .12s}
+.btn-cancel:hover{background:var(--surface2)}
+.btn-save{background:var(--accent);border:none;border-radius:var(--radius-sm);padding:9px 22px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'Pretendard',sans-serif;transition:opacity .15s}
+.btn-save:hover{opacity:.85}
+.btn-excel{background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 14px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .15s;display:flex;align-items:center;gap:5px}
+.btn-excel:hover{background:var(--accent-light);color:var(--accent);border-color:#C2D9A8}
+#excel-file-input{display:none}
+.upload-result{border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-top:12px;display:none}
+.upload-result.ok{display:block;background:var(--success-light);color:var(--success);border:1px solid #C2D9A8}
+.upload-result.err{display:block;background:var(--danger-light);color:var(--danger);border:1px solid #F5C6C2}
+
+/* EXCEL CONFIRM MODAL */
+.excel-confirm-box{background:var(--surface);border-radius:16px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:modalIn .2s ease}
+.excel-confirm-box .ec-title{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:6px}
+.excel-confirm-box .ec-sub{font-size:13px;color:var(--text3);margin-bottom:20px}
+.ec-info{background:var(--bg);border-radius:var(--radius-sm);padding:14px;margin-bottom:20px;font-size:13px;color:var(--text2);line-height:1.8}
+.ec-info strong{color:var(--text)}
+.ec-btns{display:flex;flex-direction:column;gap:8px}
+.ec-btns .row{display:flex;gap:8px}
+.btn-ec-cancel{flex:1;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;border:1px solid var(--border);background:var(--surface2);color:var(--text2);transition:opacity .15s}
+.btn-ec-add{flex:2;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;border:none;background:var(--accent);color:#fff;transition:opacity .15s}
+.btn-ec-overwrite{width:100%;padding:11px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);transition:all .15s}
+.btn-ec-cancel:hover,.btn-ec-add:hover{opacity:.8}
+.btn-ec-overwrite:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+
+/* CONFIRM MODAL */
+.confirm-modal{background:var(--surface);border-radius:14px;padding:24px 22px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:modalIn .18s ease;text-align:center}
+.confirm-modal p{font-size:15px;color:var(--text);margin-bottom:20px;line-height:1.6}
+.confirm-btns{display:flex;gap:8px}
+.confirm-btns button{flex:1;padding:10px;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;border:none;transition:opacity .15s}
+.confirm-btns button:hover{opacity:.8}
+.c-no{background:var(--surface2);color:var(--text2)}
+.c-yes{background:var(--danger);color:#fff}
+
+/* LEVEL MODAL */
+.level-box{background:var(--surface);border-radius:16px;padding:28px 24px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:modalIn .2s ease;text-align:center}
+.level-box .modal-title{margin-bottom:6px}
+.level-sub{font-size:13px;color:var(--text3);margin-bottom:22px}
+.level-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.level-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.level-btn{border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 8px 16px;cursor:pointer;background:var(--bg);font-family:'Pretendard',sans-serif;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.level-btn:hover{border-color:var(--accent);background:var(--accent-light)}
+.level-btn .lv-emoji{font-size:26px;margin-bottom:8px;line-height:1}
+.level-btn .lv-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.2}
+.level-btn .lv-desc{font-size:11px;color:var(--text3);margin-top:4px}
+.level-btn.all{flex-direction:row;gap:10px;padding:13px 20px;justify-content:center}
+.level-btn.all .lv-emoji{font-size:20px;margin-bottom:0}
+.level-btn.all .lv-name{font-size:14px}
+.level-cancel{margin-top:10px;background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;font-family:'Pretendard',sans-serif}
+.level-cancel:hover{color:var(--text2)}
+
+/* QUIZ */
+.quiz-wrap{padding:8px 0}
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.progress-track{flex:1;height:4px;background:var(--border);border-radius:10px;overflow:hidden}
+.progress-fill{height:4px;background:var(--accent);border-radius:10px;transition:width .4s ease}
+.progress-text{font-size:12px;color:var(--text3);font-weight:500;flex-shrink:0}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px 28px 32px;text-align:center;box-shadow:var(--shadow-md);margin-bottom:16px}
+.quiz-word{font-family:'Instrument Serif',serif;font-size:42px;letter-spacing:-.5px;margin-bottom:8px}
+.quiz-hint{font-size:12px;color:var(--text3);margin-bottom:28px}
+.quiz-input-row{display:flex;gap:8px}
+.quiz-input{flex:1;padding:12px 16px;font-size:15px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:'Pretendard',sans-serif;outline:none;transition:border-color .15s,box-shadow .15s}
+.quiz-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,80,22,.1)}
+.quiz-submit{background:var(--accent);border:none;border-radius:var(--radius-sm);padding:0 20px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:'Pretendard',sans-serif;transition:opacity .15s;white-space:nowrap}
+.quiz-submit:hover{opacity:.85}
+.quiz-submit:disabled{opacity:.35;cursor:default}
+.quiz-skip{background:none;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0 14px;font-size:14px;font-weight:500;color:var(--text3);cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .15s;white-space:nowrap}
+.quiz-skip:hover{background:var(--surface2);color:var(--text2)}
+.quiz-skip:disabled{opacity:.35;cursor:default}
+.feedback-box{border-radius:var(--radius-sm);padding:12px 16px;font-size:14px;margin-top:14px;display:none;text-align:left;line-height:1.5}
+.feedback-box.correct{display:block;background:var(--success-light);color:var(--success);border:1px solid #C2D9A8}
+.feedback-box.wrong{display:block;background:var(--danger-light);color:var(--danger);border:1px solid #F5C6C2}
+.next-btn{width:100%;background:var(--text);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:opacity .15s;margin-top:14px;display:none}
+.next-btn:hover{opacity:.85}
+.next-btn.show{display:block}
+
+/* RESULT */
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:44px 28px 36px;text-align:center;box-shadow:var(--shadow-md)}
+.result-emoji{font-size:48px;margin-bottom:12px}
+.result-title{font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:6px}
+.result-sub{font-size:13px;color:var(--text3);margin-bottom:28px}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px}
+.result-stat{background:var(--bg);border-radius:var(--radius-sm);padding:16px 10px}
+.rs-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.rs-value{font-family:'Instrument Serif',serif;font-size:28px}
+.rs-value.c-ok{color:var(--success)}.rs-value.c-ng{color:var(--danger)}
+.home-btn{width:100%;background:var(--text);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;transition:opacity .15s}
+.home-btn:hover{opacity:.82}
+
+/* HISTORY */
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;box-shadow:var(--shadow);transition:all .15s}
+.history-card:hover{border-color:var(--border2);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.history-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.history-date{font-size:12px;color:var(--text3)}
+.history-rate-badge{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--accent-light);color:var(--accent)}
+.history-rate-badge.low{background:var(--danger-light);color:var(--danger)}
+.history-rate-badge.mid{background:var(--warning-light);color:var(--warning)}
+.history-bottom{display:flex;gap:16px;font-size:13px;color:var(--text2)}
+.history-bottom span{display:flex;align-items:center;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--success)}.dot.ng{background:var(--danger)}
+
+/* DETAIL */
+.detail-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;box-shadow:var(--shadow);font-size:13px;color:var(--text2)}
+.detail-summary strong{color:var(--text);font-weight:600}
+.detail-list{display:flex;flex-direction:column;gap:8px}
+.detail-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow)}
+.detail-num{font-size:11px;color:var(--text3);min-width:20px;padding-top:3px}
+.oj-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;flex-shrink:0;margin-top:2px}
+.oj-badge.o{background:var(--success-light);color:var(--success)}
+.oj-badge.x{background:var(--danger-light);color:var(--danger)}
+.detail-info{flex:1;min-width:0}
+.detail-en{font-family:'Instrument Serif',serif;font-size:17px;margin-bottom:4px}
+.detail-meaning{font-size:12px;color:var(--text3);margin-bottom:3px}
+.detail-user{font-size:12px;color:var(--text2)}
+.ans-ok{color:var(--success);font-weight:600}
+.ans-ng{color:var(--danger);font-weight:600}
+
+/* EMPTY / TOAST */
+.empty-state{text-align:center;padding:56px 20px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:14px;line-height:1.8}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .25s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:480px){.quiz-word{font-size:32px}.stat-card .s-value{font-size:24px}.brand-title{font-size:30px}.quiz-card{padding:30px 18px 24px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- MAIN -->
+<div id="screen-main" class="screen active">
+  <div class="brand">
+    <div class="brand-en">Vocabulary Trainer</div>
+    <div class="brand-title">영어단어<br>암기 앱</div>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="s-label">단어 수</div><div class="s-value" id="stat-words">0</div></div>
+    <div class="stat-card"><div class="s-label">시험 횟수</div><div class="s-value" id="stat-exams">0</div></div>
+    <div class="stat-card"><div class="s-label">정답률</div><div class="s-value" id="stat-rate">—</div></div>
+  </div>
+  <div class="menu-list">
+    <button class="menu-btn" onclick="go('quiz-screen')">
+      <div class="menu-icon orange">✏️</div>
+      <div class="menu-text-group"><div class="m-title">시험 보기</div><div class="m-desc">랜덤 10문제로 실력을 확인하세요</div></div>
+      <span class="menu-arrow">›</span>
+    </button>
+    <button class="menu-btn" onclick="go('history')">
+      <div class="menu-icon slate">📋</div>
+      <div class="menu-text-group"><div class="m-title">시험 이력</div><div class="m-desc">지난 시험 결과를 확인하세요</div></div>
+      <span class="menu-arrow">›</span>
+    </button>
+    <button class="menu-btn" onclick="go('words')">
+      <div class="menu-icon">📖</div>
+      <div class="menu-text-group"><div class="m-title">단어 등록</div><div class="m-desc">단어를 추가하고 관리하세요</div></div>
+      <span class="menu-arrow">›</span>
+    </button>
+  </div>
+</div>
+
+<!-- WORDS -->
+<div id="screen-words" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="go('main')">‹</button>
+    <span class="page-title">단어 등록</span>
+  </div>
+  <div class="section-bar">
+    <span class="count-label" id="word-count-label">총 0개</span>
+    <div class="btn-group">
+      <button class="download-btn" onclick="downloadAllWords()">⬇ 전체 다운로드</button>
+      <button class="add-btn" onclick="openAddModal()">＋ 새 단어 추가</button>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('date',this)">등록날짜순</button>
+    <button class="filter-btn" onclick="setFilter('low',this)">정답률 낮은순</button>
+    <button class="filter-btn" onclick="setFilter('high',this)">정답률 높은순</button>
+  </div>
+  <div class="word-list" id="word-list"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz-screen" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="go('main')">‹</button>
+    <span class="page-title">시험 보기</span>
+  </div>
+  <div class="quiz-wrap" id="quiz-area"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="go('main')">‹</button>
+    <span class="page-title">시험 이력</span>
+  </div>
+  <div class="history-list" id="history-list"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="screen-detail" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="go('history')">‹</button>
+    <span class="page-title">세부 정오표</span>
+  </div>
+  <div id="detail-area"></div>
+</div>
+
+</div><!-- /app -->
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">새 단어 추가</div>
+    <div class="form-group"><label>영어 단어 *</label><input type="text" id="f-en" placeholder="예) persevere" autocomplete="off"></div>
+    <div class="form-group"><label>뜻 1 *</label><input type="text" id="f-k1" placeholder="예) 인내하다" autocomplete="off"></div>
+    <div class="form-group"><label>뜻 2 (선택)</label><input type="text" id="f-k2" placeholder="예) 끈기 있게 계속하다"></div>
+    <div class="form-group"><label>뜻 3 (선택)</label><input type="text" id="f-k3" placeholder="예) 버티다"></div>
+    <div class="form-group">
+      <label>난이도</label>
+      <select id="f-level">
+        <option value="">미설정</option>
+        <option value="하">🌱 하 (쉬움)</option>
+        <option value="중">📘 중 (보통)</option>
+        <option value="상">🔥 상 (어려움)</option>
+      </select>
+    </div>
+    <div class="upload-result" id="upload-result"></div>
+    <div class="modal-foot">
+      <label class="btn-excel">📂 엑셀로 업로드<input type="file" id="excel-file-input" accept=".xlsx,.xls"></label>
+      <div class="modal-foot-right">
+        <button class="btn-cancel" onclick="closeModal()">취소</button>
+        <button class="btn-save" onclick="saveWord()">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXCEL CONFIRM MODAL -->
+<div class="modal-overlay" id="excel-confirm-overlay">
+  <div class="excel-confirm-box">
+    <div class="ec-title">업로드 확인</div>
+    <div class="ec-sub" id="excel-confirm-msg">단어를 업로드할까요?</div>
+    <div class="ec-info">
+      <div>➕ <strong>추가</strong> — 새 단어만 추가, 기존 단어는 건너뜀</div>
+      <div>♻️ <strong>덮어쓰기</strong> — 기존 단어의 뜻·난이도 업데이트<br><span style="font-size:11px;color:var(--text3);padding-left:20px;">(정답률·시험 횟수는 유지)</span></div>
+    </div>
+    <div class="ec-btns">
+      <div class="row">
+        <button class="btn-ec-cancel" id="btn-ec-cancel">취소</button>
+        <button class="btn-ec-add" id="btn-ec-add">➕ 추가</button>
+      </div>
+      <button class="btn-ec-overwrite" id="btn-ec-overwrite">♻️ 덮어쓰기 (뜻·난이도 업데이트)</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-overlay">
+  <div class="confirm-modal">
+    <p>이 단어를 삭제할까요?</p>
+    <div class="confirm-btns">
+      <button class="c-no" id="btn-delete-cancel">취소</button>
+      <button class="c-yes" id="btn-delete-confirm">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- LEVEL SELECT MODAL -->
+<div class="modal-overlay" id="level-overlay">
+  <div class="level-box">
+    <div class="modal-title">난이도 선택</div>
+    <div class="level-sub">시험 볼 난이도를 선택하세요</div>
+    <div class="level-grid">
+      <div class="level-row">
+        <button class="level-btn" id="lv-상"><div class="lv-emoji">🔥</div><div class="lv-name">상</div><div class="lv-desc">고급 단어</div></button>
+        <button class="level-btn" id="lv-중"><div class="lv-emoji">📘</div><div class="lv-name">중</div><div class="lv-desc">중급 단어</div></button>
+        <button class="level-btn" id="lv-하"><div class="lv-emoji">🌱</div><div class="lv-name">하</div><div class="lv-desc">기초 단어</div></button>
+      </div>
+      <button class="level-btn all" id="lv-전체"><div class="lv-emoji">🎯</div><div class="lv-name">전체 (난이도 무관)</div></button>
+    </div>
+    <button class="level-cancel" id="btn-level-cancel">취소</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── SUPABASE CONFIG ── */
+const SUPABASE_URL = 'https://kzyqouohgrqlqpwnehzf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6eXFvdW9oZ3JxbHFwd25laHpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MjU3NjEsImV4cCI6MjA5NjIwMTc2MX0.0XOFLlvl95b7vF5JYQWtUsc3t01BYstkEebO4MiKRao';
+const TABLE = 'test_db';
+const HISTORY_TABLE = 'exam_history';
+
+async function sbFetch(path, options = {}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || '',
+      ...(options.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+/* DB 행 → 앱 단어 객체 변환 */
+function rowToWord(r) {
+  return {
+    id: String(r.sec),
+    sec: r.sec,
+    en: r.eng_word,
+    k1: r.kor_word1 || '',
+    k2: r.kor_word2 || '',
+    k3: r.kor_word3 || '',
+    level: r.grade || '',
+    createdAt: r.created_at || Date.now(),
+    tested: r.tested || 0,
+    correct: r.correct || 0
+  };
+}
+
+/* 앱 단어 객체 → DB 행 변환 */
+function wordToRow(w) {
+  return {
+    eng_word: w.en,
+    kor_word1: w.k1 || '',
+    kor_word2: w.k2 || '',
+    kor_word3: w.k3 || '',
+    grade: w.level || '',
+    tested: w.tested || 0,
+    correct: w.correct || 0,
+    created_at: w.createdAt || Date.now()
+  };
+}
+
+/* ── DATA ── */
+let words = [];
+let history = [];
+let dbLoaded = false;
+
+/* 로딩 오버레이 표시/숨김 */
+function showLoading(msg) {
+  let el = document.getElementById('db-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'db-loading';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(247,245,240,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-family:Pretendard,sans-serif';
+    el.innerHTML = '<div style="font-size:28px">📡</div><div id="db-loading-msg" style="font-size:14px;color:#6B6560"></div>';
+    document.body.appendChild(el);
+  }
+  document.getElementById('db-loading-msg').textContent = msg || '불러오는 중...';
+  el.style.display = 'flex';
+}
+function hideLoading() {
+  const el = document.getElementById('db-loading');
+  if (el) el.style.display = 'none';
+}
+
+/* Supabase에서 단어 + 이력 전체 로드 */
+async function loadWords() {
+  showLoading('Supabase에서 데이터 불러오는 중...');
+  try {
+    const [wordData, histData] = await Promise.all([
+      sbFetch(TABLE + '?order=created_at.desc&limit=1000'),
+      sbFetch(HISTORY_TABLE + '?order=exam_date.desc&limit=200')
+    ]);
+    words = (wordData || []).map(rowToWord);
+    history = (histData || []).map(function(r) {
+      return {
+        id: String(r.id),
+        dbId: r.id,
+        date: r.exam_date,
+        total: r.total,
+        correct: r.correct,
+        wrong: r.total - r.correct,
+        level: r.level,
+        results: r.results || []
+      };
+    });
+    dbLoaded = true;
+  } catch(e) {
+    showToast('데이터 로드 실패: ' + e.message);
+  } finally {
+    hideLoading();
+    updateStats();
+    renderWordList();
+  }
+}
+
+/* 단어 추가 */
+async function dbInsert(w) {
+  const row = wordToRow(w);
+  const data = await sbFetch(TABLE + '?select=sec', {
+    method: 'POST',
+    prefer: 'return=representation',
+    body: JSON.stringify(row)
+  });
+  if (data && data[0]) w.sec = data[0].sec, w.id = String(data[0].sec);
+  return w;
+}
+
+/* 단어 수정 */
+async function dbUpdate(w) {
+  await sbFetch(TABLE + '?sec=eq.' + w.sec, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: JSON.stringify(wordToRow(w))
+  });
+}
+
+/* 단어 삭제 */
+async function dbDelete(sec) {
+  await sbFetch(TABLE + '?sec=eq.' + sec, { method: 'DELETE' });
+}
+
+/* 정답률 업데이트 (퀴즈 후) */
+async function dbUpdateStats(w) {
+  await sbFetch(TABLE + '?sec=eq.' + w.sec, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: JSON.stringify({ tested: w.tested, correct: w.correct })
+  });
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+/* ── HISTORY DB 함수 ── */
+async function loadHistory() {
+  try {
+    const data = await sbFetch(HISTORY_TABLE + '?order=exam_date.desc&limit=200');
+    history = (data || []).map(function(r) {
+      return {
+        id: String(r.id),
+        dbId: r.id,
+        date: r.exam_date,
+        total: r.total,
+        correct: r.correct,
+        wrong: r.total - r.correct,
+        level: r.level,
+        results: r.results || []
+      };
+    });
+  } catch(e) {
+    showToast('이력 로드 실패: ' + e.message);
+    history = [];
+  }
+}
+
+async function dbInsertHistory(session) {
+  const data = await sbFetch(HISTORY_TABLE + '?select=id', {
+    method: 'POST',
+    prefer: 'return=representation',
+    body: JSON.stringify({
+      exam_date: session.date,
+      total: session.total,
+      correct: session.correct,
+      level: session.level || '전체',
+      results: session.results
+    })
+  });
+  if (data && data[0]) session.dbId = data[0].id;
+}
+
+let toastT;
+function showToast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ el.classList.remove('show'); }, 2400);
+}
+
+/* ── NAVIGATION ── */
+function go(screen){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('screen-' + screen).classList.add('active');
+  if(screen === 'main')    updateStats();
+  if(screen === 'words')   renderWordList();
+  if(screen === 'history') renderHistory();
+  if(screen === 'quiz-screen') openLevelModal();
+}
+
+/* ── STATS ── */
+function updateStats(){
+  document.getElementById('stat-words').textContent = words.length;
+  document.getElementById('stat-exams').textContent = history.length;
+  if(!history.length){ document.getElementById('stat-rate').textContent = '—'; return; }
+  var total   = history.reduce(function(a,h){ return a+h.total; }, 0);
+  var correct = history.reduce(function(a,h){ return a+h.correct; }, 0);
+  document.getElementById('stat-rate').textContent = total ? Math.round(correct/total*100)+'%' : '—';
+}
+
+/* ── WORD LIST ── */
+var filterMode = 'date';
+
+function getSorted(){
+  var arr = words.slice();
+  if(filterMode === 'date') arr.sort(function(a,b){ return b.createdAt - a.createdAt; });
+  else if(filterMode === 'low')  arr.sort(function(a,b){ return (a.tested?a.correct/a.tested:2) - (b.tested?b.correct/b.tested:2); });
+  else arr.sort(function(a,b){ return (b.tested?b.correct/b.tested:-1) - (a.tested?a.correct/a.tested:-1); });
+  return arr;
+}
+
+function setFilter(mode, btn){
+  filterMode = mode;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderWordList();
+}
+
+function renderWordList(){
+  var arr = getSorted();
+  document.getElementById('word-count-label').textContent = '총 ' + arr.length + '개';
+  var el = document.getElementById('word-list');
+  if(!arr.length){
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><p>등록된 단어가 없습니다.<br>첫 번째 단어를 추가해보세요!</p></div>';
+    return;
+  }
+  el.innerHTML = arr.map(function(w, i){
+    var meanings = [w.k1,w.k2,w.k3].filter(Boolean).join(', ');
+    var d = new Date(w.createdAt);
+    var ds = d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')
+      +'  '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    var r = w.tested ? Math.round(w.correct/w.tested*100)+'%' : '미시험';
+    var lv = w.level ? '<span class="word-level '+w.level+'">'+w.level+'</span>' : '';
+    return '<div class="word-card">'
+      +'<div class="word-top">'
+      +'<span class="word-num">'+( i+1)+'</span>'
+      +'<span class="word-en">'+esc(w.en)+'</span>'
+      +'<span class="word-divider"></span>'
+      +'<span class="word-ko" title="'+esc(meanings)+'">'+esc(meanings)+'</span>'
+      +lv
+      +'<div class="word-actions">'
+      +'<button class="action-btn" onclick="openEditModal(\''+w.id+'\')">수정</button>'
+      +'<button class="action-btn del" onclick="confirmDelete(\''+w.id+'\')">삭제</button>'
+      +'</div></div>'
+      +'<div class="word-meta"><span>등록일시: '+ds+'</span><span>정답률: '+r+'</span></div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── ADD/EDIT MODAL ── */
+var editId = null;
+function openAddModal(){
+  editId = null;
+  document.getElementById('modal-title').textContent = '새 단어 추가';
+  ['f-en','f-k1','f-k2','f-k3'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('f-level').value = '';
+  document.getElementById('upload-result').className = 'upload-result';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('f-en').focus(); }, 60);
+}
+function openEditModal(id){
+  var w = words.find(function(x){ return x.id===id; });
+  if(!w) return;
+  editId = id;
+  document.getElementById('modal-title').textContent = '단어 수정';
+  document.getElementById('f-en').value  = w.en;
+  document.getElementById('f-k1').value  = w.k1||'';
+  document.getElementById('f-k2').value  = w.k2||'';
+  document.getElementById('f-k3').value  = w.k3||'';
+  document.getElementById('f-level').value = w.level||'';
+  document.getElementById('upload-result').className = 'upload-result';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('f-en').focus(); }, 60);
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+
+async function saveWord(){
+  var en    = document.getElementById('f-en').value.trim();
+  var k1    = document.getElementById('f-k1').value.trim();
+  var k2    = document.getElementById('f-k2').value.trim();
+  var k3    = document.getElementById('f-k3').value.trim();
+  var level = document.getElementById('f-level').value;
+  if(!en){ showToast('영어 단어를 입력해주세요'); document.getElementById('f-en').focus(); return; }
+  if(!k1){ showToast('뜻 1은 필수입니다'); document.getElementById('f-k1').focus(); return; }
+  showLoading('저장 중...');
+  try {
+    if(editId){
+      var w = words.find(function(x){ return x.id===editId; });
+      if(w){ w.en=en; w.k1=k1; w.k2=k2; w.k3=k3; w.level=level; await dbUpdate(w); }
+      showToast('단어가 수정되었습니다');
+    } else {
+      var newWord = {id:uid(),en:en,k1:k1,k2:k2,k3:k3,level:level,createdAt:Date.now(),tested:0,correct:0};
+      await dbInsert(newWord);
+      words.unshift(newWord);
+      showToast('단어가 추가되었습니다');
+    }
+    closeModal(); renderWordList(); updateStats();
+  } catch(e) {
+    showToast('저장 실패: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+/* ── DELETE ── */
+var pendingDeleteId = null;
+function confirmDelete(id){
+  pendingDeleteId = id;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+async function doDelete(){
+  var w = words.find(function(x){ return x.id === pendingDeleteId; });
+  if(!w) return;
+  showLoading('삭제 중...');
+  try {
+    await dbDelete(w.sec);
+    words = words.filter(function(x){ return x.id !== pendingDeleteId; });
+    document.getElementById('confirm-overlay').classList.remove('open');
+    pendingDeleteId = null;
+    renderWordList(); updateStats();
+    showToast('단어가 삭제되었습니다');
+  } catch(e) {
+    showToast('삭제 실패: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+/* ── DOWNLOAD ── */
+function downloadAllWords(){
+  if(!words.length){ showToast('다운로드할 단어가 없습니다'); return; }
+  if(typeof XLSX === 'undefined'){ showToast('잠시 후 다시 시도해주세요'); return; }
+  var header = ['영어단어','뜻1','뜻2','뜻3','난이도'];
+  var data = [header].concat(words.map(function(w){
+    return [w.en, w.k1||'', w.k2||'', w.k3||'', w.level||''];
+  }));
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:18},{wch:20},{wch:20},{wch:20},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, '단어목록');
+  XLSX.writeFile(wb, '전체단어목록.xlsx');
+  showToast('다운로드가 시작되었습니다');
+}
+
+/* ── EXCEL UPLOAD ── */
+var pendingExcelRows = [];
+
+document.getElementById('excel-file-input').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if(!file) return;
+  var resultEl = document.getElementById('upload-result');
+  resultEl.className = 'upload-result';
+  e.target.value = '';
+
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      var data = new Uint8Array(ev.target.result);
+      var wb   = XLSX.read(data, {type:'array'});
+      var ws   = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+
+      var startRow = 0;
+      if(rows.length > 0){
+        var first = String(rows[0][0]||'').toLowerCase().trim();
+        if(['영어단어','english','word','en','단어'].indexOf(first) >= 0) startRow = 1;
+      }
+
+      pendingExcelRows = [];
+      var emptySkipped = 0;
+      for(var i = startRow; i < rows.length; i++){
+        var row   = rows[i];
+        var en    = String(row[0]||'').trim();
+        var k1    = String(row[1]||'').trim();
+        var k2    = String(row[2]||'').trim();
+        var k3    = String(row[3]||'').trim();
+        var level = String(row[4]||'').trim();
+        if(!en || !k1){ emptySkipped++; continue; }
+        pendingExcelRows.push({en:en,k1:k1,k2:k2,k3:k3,level:level});
+      }
+
+      if(!pendingExcelRows.length){
+        resultEl.className = 'upload-result err';
+        resultEl.textContent = '업로드할 단어가 없습니다. 양식을 확인해주세요.';
+        return;
+      }
+
+      var newCount = pendingExcelRows.filter(function(r){
+        return !words.some(function(w){ return w.en.toLowerCase()===r.en.toLowerCase(); });
+      }).length;
+      var existCount = pendingExcelRows.length - newCount;
+      var emptyMsg = emptySkipped ? ' (빈 행 '+emptySkipped+'개 제외)' : '';
+      document.getElementById('excel-confirm-msg').textContent =
+        '새 단어 '+newCount+'개 · 기존 단어 '+existCount+'개'+emptyMsg;
+      document.getElementById('excel-confirm-overlay').classList.add('open');
+
+    } catch(err){
+      resultEl.className = 'upload-result err';
+      resultEl.textContent = '파일 읽기 오류: ' + err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+async function doExcelUpload(mode){
+  showLoading('업로드 중...');
+  document.getElementById('excel-confirm-overlay').classList.remove('open');
+  var added = 0, updated = 0;
+  try {
+    for(var i=0; i<pendingExcelRows.length; i++){
+      var r = pendingExcelRows[i];
+      var existing = words.find(function(w){ return w.en.toLowerCase() === r.en.toLowerCase(); });
+      if(existing){
+        if(mode === 'overwrite'){
+          existing.k1 = r.k1; existing.k2 = r.k2; existing.k3 = r.k3;
+          if(r.level) existing.level = r.level;
+          await dbUpdate(existing);
+          updated++;
+        }
+      } else {
+        var newWord = {id:uid(),en:r.en,k1:r.k1,k2:r.k2,k3:r.k3,level:r.level||'',createdAt:Date.now()+(added*100),tested:0,correct:0};
+        await dbInsert(newWord);
+        words.unshift(newWord);
+        added++;
+      }
+    }
+    pendingExcelRows = [];
+    var msg = '';
+    if(mode === 'overwrite'){
+      var parts = [];
+      if(added)   parts.push(added+'개 추가');
+      if(updated) parts.push(updated+'개 업데이트');
+      msg = parts.length ? parts.join(', ')+'되었습니다' : '변경된 단어가 없습니다';
+    } else {
+      msg = added ? added+'개 단어가 추가되었습니다' : '추가된 단어가 없습니다';
+    }
+    showToast(msg);
+    closeModal(); renderWordList(); updateStats();
+  } catch(e) {
+    showToast('업로드 실패: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+/* ── LEVEL MODAL ── */
+function openLevelModal(){
+  document.getElementById('level-overlay').classList.add('open');
+}
+function closeLevelModal(){
+  document.getElementById('level-overlay').classList.remove('open');
+}
+
+/* ── QUIZ ── */
+var quizWords=[], quizIdx=0, quizResults=[], quizAnswered=false, quizLevel='전체';
+
+function startQuizWithLevel(level){
+  closeLevelModal();
+  var pool;
+  if(level === '전체') pool = words.slice();
+  else if(level === '미설정') pool = words.filter(function(w){ return !w.level || w.level===''; });
+  else pool = words.filter(function(w){ return w.level === level; });
+
+  if(!pool.length){
+    showToast(level==='미설정' ? '난이도 미설정 단어가 없습니다' : '난이도 ['+level+'] 단어가 없습니다');
+    go('main'); return;
+  }
+  quizWords   = pool.sort(function(){ return Math.random()-.5; }).slice(0, Math.min(10,pool.length));
+  quizIdx     = 0;
+  quizResults = [];
+  quizLevel   = level;
+  quizAnswered = false;
+  renderQuizStep();
+}
+
+function renderQuizStep(){
+  var area = document.getElementById('quiz-area');
+  if(quizIdx >= quizWords.length){ renderResult(); return; }
+  var w   = quizWords[quizIdx];
+  var pct = Math.round(quizIdx / quizWords.length * 100);
+  area.innerHTML =
+    '<div class="progress-row">'
+    +'<div class="progress-track"><div class="progress-fill" style="width:'+pct+'%"></div></div>'
+    +'<span class="progress-text">'+(quizIdx+1)+' / '+quizWords.length+'</span></div>'
+    +'<div class="quiz-card">'
+    +'<div class="quiz-word">'+esc(w.en)+'</div>'
+    +'<div class="quiz-hint">한글 뜻을 입력하세요</div>'
+    +'<div class="quiz-input-row">'
+    +'<input type="text" class="quiz-input" id="quiz-ans" placeholder="뜻 입력...">'
+    +'<button class="quiz-skip" id="quiz-skip">모름</button>'
+    +'<button class="quiz-submit" id="quiz-btn">확인</button>'
+    +'</div>'
+    +'<div class="feedback-box" id="quiz-feedback"></div>'
+    +'<button class="next-btn" id="next-btn">'+(quizIdx+1<quizWords.length?'다음 문제 →':'결과 보기 →')+'</button>'
+    +'</div>';
+
+  quizAnswered = false;
+
+  document.getElementById('quiz-ans').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') checkAnswer();
+  });
+  document.getElementById('quiz-btn').addEventListener('click', checkAnswer);
+  document.getElementById('quiz-skip').addEventListener('click', skipAnswer);
+  document.getElementById('next-btn').addEventListener('click', function(){
+    quizIdx++; renderQuizStep();
+  });
+
+  setTimeout(function(){ var i=document.getElementById('quiz-ans'); if(i) i.focus(); }, 60);
+}
+
+function checkAnswer(){
+  if(quizAnswered) return;
+  var inp = document.getElementById('quiz-ans');
+  var userAns = inp.value.trim();
+  if(!userAns){ showToast('뜻을 입력해주세요'); inp.focus(); return; }
+  var w = quizWords[quizIdx];
+  var meanings = [w.k1,w.k2,w.k3].filter(Boolean);
+  var norm = function(s){ return s.trim().toLowerCase().replace(/\s+/g,''); };
+  var correct = meanings.some(function(m){ return norm(m)===norm(userAns); });
+  w.tested = (w.tested||0)+1;
+  if(correct) w.correct = (w.correct||0)+1;
+  dbUpdateStats(w);
+  quizResults.push({word:w, userAns:userAns, correct:correct});
+  quizAnswered = true;
+  var fb = document.getElementById('quiz-feedback');
+  if(correct){
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '✓ 정답입니다!';
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = '✗ 오답 &nbsp;—&nbsp; 정답: <strong>'+esc(meanings.join(' / '))+'</strong>';
+  }
+  inp.disabled = true;
+  document.getElementById('quiz-btn').disabled  = true;
+  document.getElementById('quiz-skip').disabled = true;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function skipAnswer(){
+  if(quizAnswered) return;
+  var w = quizWords[quizIdx];
+  var meanings = [w.k1,w.k2,w.k3].filter(Boolean);
+  w.tested = (w.tested||0)+1;
+  dbUpdateStats(w);
+  quizResults.push({word:w, userAns:'(모름)', correct:false});
+  quizAnswered = true;
+  var fb = document.getElementById('quiz-feedback');
+  fb.className = 'feedback-box wrong';
+  fb.innerHTML = '— 모름 &nbsp;—&nbsp; 정답: <strong>'+esc(meanings.join(' / '))+'</strong>';
+  document.getElementById('quiz-ans').disabled  = true;
+  document.getElementById('quiz-btn').disabled  = true;
+  document.getElementById('quiz-skip').disabled = true;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function renderResult(){
+  var correct = quizResults.filter(function(r){ return r.correct; }).length;
+  var wrong   = quizResults.length - correct;
+  var rate    = Math.round(correct / quizResults.length * 100);
+  var emoji   = rate>=80?'🎉':rate>=50?'💪':'📚';
+  var msg     = rate>=80?'훌륭해요!':rate>=50?'잘 하고 있어요!':'조금 더 연습해봐요!';
+  var session = {
+    id:uid(), date:Date.now(), total:quizResults.length, correct:correct, wrong:wrong, level:quizLevel,
+    results:quizResults.map(function(r){
+      return {en:r.word.en, meanings:[r.word.k1,r.word.k2,r.word.k3].filter(Boolean).join(' / '), userAns:r.userAns, correct:r.correct};
+    })
+  };
+  history.unshift(session); dbInsertHistory(session);
+  document.getElementById('quiz-area').innerHTML =
+    '<div class="result-card">'
+    +'<div class="result-emoji">'+emoji+'</div>'
+    +'<div class="result-title">'+msg+'</div>'
+    +'<div class="result-sub">'+quizResults.length+'문제 완료 · 난이도: '+quizLevel+'</div>'
+    +'<div class="result-stats">'
+    +'<div class="result-stat"><div class="rs-label">정답</div><div class="rs-value c-ok">'+correct+'</div></div>'
+    +'<div class="result-stat"><div class="rs-label">오답</div><div class="rs-value c-ng">'+wrong+'</div></div>'
+    +'<div class="result-stat"><div class="rs-label">정답률</div><div class="rs-value">'+rate+'%</div></div>'
+    +'</div>'
+    +'<button class="home-btn" onclick="go(\'main\')">메인화면으로 돌아가기</button>'
+    +'</div>';
+}
+
+/* ── HISTORY ── */
+function renderHistory(){
+  var el = document.getElementById('history-list');
+  if(!history.length){
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><p>아직 시험 이력이 없습니다.</p></div>';
+    return;
+  }
+  el.innerHTML = history.map(function(h,i){
+    var d = new Date(h.date);
+    var ds = d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')
+      +'  '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    var rate = Math.round(h.correct/h.total*100);
+    var cls  = rate>=80?'':rate>=50?'mid':'low';
+    var lv   = h.level ? ' · '+h.level : '';
+    return '<div class="history-card" onclick="showDetail('+i+')">'
+      +'<div class="history-top">'
+      +'<span class="history-date">'+ds+lv+'</span>'
+      +'<span class="history-rate-badge '+cls+'">'+rate+'%</span>'
+      +'</div>'
+      +'<div class="history-bottom">'
+      +'<span><span class="dot ok"></span>정답 '+h.correct+'개</span>'
+      +'<span><span class="dot ng"></span>오답 '+h.wrong+'개</span>'
+      +'<span>총 '+h.total+'문제</span>'
+      +'</div></div>';
+  }).join('');
+}
+
+function showDetail(idx){
+  var h = history[idx];
+  var d = new Date(h.date);
+  var ds = d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')
+    +'  '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  var rate = Math.round(h.correct/h.total*100);
+  var items = h.results.map(function(r,i){
+    return '<div class="detail-card">'
+      +'<span class="detail-num">'+(i+1)+'</span>'
+      +'<span class="oj-badge '+(r.correct?'o':'x')+'">'+(r.correct?'정답':'오답')+'</span>'
+      +'<div class="detail-info">'
+      +'<div class="detail-en">'+esc(r.en)+'</div>'
+      +'<div class="detail-meaning">뜻: '+esc(r.meanings)+'</div>'
+      +'<div class="detail-user">내 답: <span class="'+(r.correct?'ans-ok':'ans-ng')+'">'+esc(r.userAns)+'</span></div>'
+      +'</div></div>';
+  }).join('');
+  document.getElementById('detail-area').innerHTML =
+    '<div class="detail-summary">'
+    +'<span><strong>'+ds+'</strong></span>'
+    +'<span>정답 <strong>'+h.correct+'</strong>개 / 오답 <strong>'+h.wrong+'</strong>개 / 정답률 <strong>'+rate+'%</strong></span>'
+    +'</div>'
+    +'<div class="detail-list">'+items+'</div>';
+  go('detail');
+}
+
+/* ── EVENT LISTENERS ── */
+// 모달 오버레이 닫기
+document.getElementById('modal-overlay').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+// 삭제 확인
+document.getElementById('btn-delete-cancel').addEventListener('click', function(){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  pendingDeleteId = null;
+});
+document.getElementById('btn-delete-confirm').addEventListener('click', doDelete);
+
+// 엑셀 확인 모달 버튼
+document.getElementById('btn-ec-cancel').addEventListener('click', function(){
+  document.getElementById('excel-confirm-overlay').classList.remove('open');
+  pendingExcelRows = [];
+});
+document.getElementById('btn-ec-add').addEventListener('click', function(){
+  doExcelUpload('add');
+});
+document.getElementById('btn-ec-overwrite').addEventListener('click', function(){
+  doExcelUpload('overwrite');
+});
+
+// 난이도 선택 버튼
+document.getElementById('lv-하').addEventListener('click',      function(){ startQuizWithLevel('하'); });
+document.getElementById('lv-중').addEventListener('click',      function(){ startQuizWithLevel('중'); });
+document.getElementById('lv-상').addEventListener('click',      function(){ startQuizWithLevel('상'); });
+document.getElementById('lv-전체').addEventListener('click',    function(){ startQuizWithLevel('전체'); });
+document.getElementById('btn-level-cancel').addEventListener('click', function(){
+  closeLevelModal(); go('main');
+});
+
+// ESC 키
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    closeModal();
+    document.getElementById('confirm-overlay').classList.remove('open');
+    document.getElementById('excel-confirm-overlay').classList.remove('open');
+    closeLevelModal();
+  }
+});
+
+loadWords();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>
